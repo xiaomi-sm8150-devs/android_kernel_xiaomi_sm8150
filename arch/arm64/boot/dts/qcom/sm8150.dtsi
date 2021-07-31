@@ -63,6 +63,9 @@
 		hsuart0 = &qupv3_se13_4uart;
 		hsuart1 = &qupv3_se4_2uart;
 		spi0 = &qupv3_se3_spi;
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+		spi1 = &qupv3_se1_spi;
+#endif
 		i2c0 = &qupv3_se4_i2c;
 	};
 
@@ -559,7 +562,11 @@
 			compatible = "android,firmware";
 			shared_meta: vbmeta {
 				compatible = "android,vbmeta";
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+				parts = "vbmeta,boot,system,vendor,dtbo";
+#else
 				parts = "vbmeta,boot,system,vendor,dtbo,odm";
+#endif
 			};
 			android_q_fstab: fstab {
 				compatible = "android,fstab";
@@ -568,9 +575,14 @@
 					dev = "/dev/block/platform/soc/8804000.sdhci/by-name/vendor";
 					type = "ext4";
 					mnt_flags = "ro,barrier=1,discard";
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+					fsmgr_flags = "wait,avb";
+#else
 					fsmgr_flags = "wait,slotselect,avb";
+#endif
 					status = "ok";
 				};
+#ifndef CONFIG_MACH_XIAOMI_SM8150
 				odm {
 					compatible = "android,odm";
 					dev = "/dev/block/platform/soc/8804000.sdhci/by-name/odm";
@@ -579,6 +591,7 @@
 					fsmgr_flags = "wait,slotselect,avb";
 					status = "ok";
 				};
+#endif
 			};
 		};
 	};
@@ -588,119 +601,240 @@
 		#size-cells = <2>;
 		ranges;
 
+#ifdef CONFIG_MACH_XIAOMI_VAYU
+		hyp_mem: hyp_mem@85700000 {
+#else
 		hyp_mem: hyp_mem {
+#endif
 			no-map;
 			reg = <0x0 0x85700000 0x0 0x600000>;
 		};
 
+#ifdef CONFIG_MACH_XIAOMI_VAYU
+		xbl_dump_mem: xbl_dump_mem@85d00000 {
+			no-map;
+			reg = <0x0 0x85d00000 0x0 0x100000>;
+		};
+#endif
+
+#ifdef CONFIG_MACH_XIAOMI_VAYU
+		xbl_aop_mem: xbl_aop_mem@85e00000 {
+#else
 		xbl_aop_mem: xbl_aop_mem {
+#endif
 			no-map;
 			reg = <0x0 0x85e00000 0x0 0x140000>;
 		};
 
+#ifdef CONFIG_MACH_XIAOMI_VAYU
+		smem_region: smem@86000000 {
+#else
 		smem_region: smem {
+#endif
 			no-map;
 			reg = <0x0 0x86000000 0x0 0x200000>;
 		};
 
+#ifdef CONFIG_MACH_XIAOMI_VAYU
+		removed_regions: removed_regions@86200000 {
+#else
 		removed_regions: removed_regions {
+#endif
 			no-map;
 			reg = <0x0 0x86200000 0x0 0x5500000>;
 		};
 
+#ifdef CONFIG_MACH_XIAOMI_VAYU
+		pil_camera_mem: camera_region@8b700000 {
+#else
 		pil_camera_mem: camera_region {
+#endif
 			compatible = "removed-dma-pool";
 			no-map;
 			reg = <0x0 0x8b700000 0x0 0x500000>;
 		};
 
+#ifdef CONFIG_MACH_XIAOMI_VAYU
+		pil_wlan_fw_mem: pil_wlan_fw_region@8bc00000 {
+#else
 		pil_wlan_fw_mem: pil_wlan_fw_region {
+#endif
 			compatible = "removed-dma-pool";
 			no-map;
 			reg = <0x0 0x8bc00000 0x0 0x180000>;
 		};
 
+#ifdef CONFIG_MACH_XIAOMI_VAYU
+		pil_npu_mem: pil_npu_region@8bd80000 {
+#else
 		pil_npu_mem: pil_npu_region {
+#endif
 			compatible = "removed-dma-pool";
 			no-map;
 			reg = <0x0 0x8bd80000 0x0 0x80000>;
 		};
 
+#ifdef CONFIG_MACH_XIAOMI_VAYU
+		pil_adsp_mem: pil_adsp_region@8be00000 {
+#else
 		pil_adsp_mem: pil_adsp_region {
+#endif
 			compatible = "removed-dma-pool";
 			no-map;
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+			reg = <0x0 0x8be00000 0x0 0x2200000>;
+#else
 			reg = <0x0 0x8be00000 0x0 0x1a00000>;
+#endif
 		};
 
+#ifdef CONFIG_MACH_XIAOMI_VAYU
+		pil_modem_mem: modem_region@8e000000 {
+#else
 		pil_modem_mem: modem_region {
+#endif
 			compatible = "removed-dma-pool";
 			no-map;
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+			reg = <0x0 0x8e000000 0x0 0x9600000>;
+#else
 			reg = <0x0 0x8d800000 0x0 0x9600000>;
+#endif
 		};
 
+#ifdef CONFIG_MACH_XIAOMI_VAYU
+		pil_video_mem: pil_video_region@97600000 {
+#else
 		pil_video_mem: pil_video_region {
+#endif
 			compatible = "removed-dma-pool";
 			no-map;
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+			reg = <0x0 0x97600000 0x0 0x500000>;
+#else
 			reg = <0x0 0x96e00000 0x0 0x500000>;
+#endif
 		};
 
+#ifdef CONFIG_MACH_XIAOMI_VAYU
+		pil_slpi_mem: pil_slpi_region@97b00000 {
+#else
 		pil_slpi_mem: pil_slpi_region {
+#endif
 			compatible = "removed-dma-pool";
 			no-map;
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+			reg = <0x0 0x97b00000 0x0 0x1400000>;
+#else
 			reg = <0x0 0x97300000 0x0 0x1400000>;
+#endif
 		};
 
+#ifdef CONFIG_MACH_XIAOMI_VAYU
+		pil_ipa_fw_mem: pil_ipa_fw_region@98f00000 {
+#else
 		pil_ipa_fw_mem: pil_ipa_fw_region {
+#endif
 			compatible = "removed-dma-pool";
 			no-map;
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+			reg = <0x0 0x98f00000 0x0 0x10000>;
+#else
 			reg = <0x0 0x98700000 0x0 0x10000>;
+#endif
 		};
 
+#ifdef CONFIG_MACH_XIAOMI_VAYU
+		pil_ipa_gsi_mem: pil_ipa_gsi_region@98f10000 {
+#else
 		pil_ipa_gsi_mem: pil_ipa_gsi_region {
+#endif
 			compatible = "removed-dma-pool";
 			no-map;
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+			reg = <0x0 0x98f10000 0x0 0x5000>;
+#else
 			reg = <0x0 0x98710000 0x0 0x5000>;
+#endif
 		};
 
+#ifdef CONFIG_MACH_XIAOMI_VAYU
+		pil_gpu_mem: pil_gpu_region@98f15000 {
+#else
 		pil_gpu_mem: pil_gpu_region {
+#endif
 			compatible = "removed-dma-pool";
 			no-map;
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+			reg = <0x0 0x98f15000 0x0 0x2000>;
+#else
 			reg = <0x0 0x98715000 0x0 0x2000>;
+#endif
 		};
 
+#ifdef CONFIG_MACH_XIAOMI_VAYU
+		pil_spss_mem: pil_spss_region@99000000 {
+#else
 		pil_spss_mem: pil_spss_region {
+#endif
 			compatible = "removed-dma-pool";
 			no-map;
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+			reg = <0x0 0x99000000 0x0 0x100000>;
+#else
 			reg = <0x0 0x98800000 0x0 0x100000>;
+#endif
 		};
 
+#ifdef CONFIG_MACH_XIAOMI_VAYU
+		pil_cdsp_mem: cdsp_regions@99100000 {
+#else
 		pil_cdsp_mem: cdsp_regions {
+#endif
 			compatible = "removed-dma-pool";
 			no-map;
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+			reg = <0x0 0x99100000 0x0 0x1400000>;
+#else
 			reg = <0x0 0x98900000 0x0 0x1400000>;
+#endif
 		};
 
+#ifdef CONFIG_MACH_XIAOMI_VAYU
+		qseecom_mem: qseecom_region@0x9e400000 {
+#else
 		qseecom_mem: qseecom_region {
+#endif
 			compatible = "shared-dma-pool";
 			no-map;
 			reg = <0 0x9e400000 0 0x1400000>;
 		};
 
+#ifdef CONFIG_MACH_XIAOMI_VAYU
+		cdsp_sec_mem: cdsp_sec_regions@0xa4c00000 {
+#else
 		cdsp_sec_mem: cdsp_sec_regions {
+#endif
 			compatible = "removed-dma-pool";
 			no-map;
 			reg = <0x0 0xa4c00000 0x0 0x3c00000>;
 		};
 
+#ifdef CONFIG_MACH_XIAOMI_VAYU
+		cont_splash_memory: cont_splash_region@9c000000 {
+#else
 		cont_splash_memory: cont_splash_region {
+#endif
 			reg = <0x0 0x9c000000 0x0 0x02400000>;
 			label = "cont_splash_region";
 		};
 
+#ifndef CONFIG_MACH_XIAOMI_SM8150
 		disp_rdump_memory: disp_rdump_region {
 			reg = <0x0 0x9c000000 0x0 0x02400000>;
 			label = "disp_rdump_region";
 		};
+#endif
 
 		adsp_mem: adsp_region {
 			compatible = "shared-dma-pool";
@@ -785,6 +919,9 @@
 #include "sm8150-camera.dtsi"
 
 #include "msm-qvr-external.dtsi"
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+#include "trusty.dtsi"
+#endif
 
 &soc {
 	#address-cells = <1>;
@@ -3026,7 +3163,11 @@
 
 	qcom_seecom: qseecom@87900000 {
 		compatible = "qcom,qseecom";
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+		reg = <0x87900000 0x3E00000>;
+#else
 		reg = <0x87900000 0x2200000>;
+#endif
 		reg-names = "secapp-region";
 		memory-region = <&qseecom_mem>;
 		qcom,hlos-num-ce-hw-instances = <1>;
@@ -3043,7 +3184,11 @@
 
 	qcom_smcinvoke: smcinvoke@87900000 {
 		compatible = "qcom,smcinvoke";
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+		reg = <0x87900000 0x3E00000>;
+#else
 		reg = <0x87900000 0x2200000>;
+#endif
 		reg-names = "secapp-region";
 	};
 
@@ -3588,7 +3733,11 @@
 
 	qcom,rmtfs_sharedmem@0 {
 		compatible = "qcom,sharedmem-uio";
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+		reg = <0x0 0x300000>;
+#else
 		reg = <0x0 0x200000>;
+#endif
 		reg-names = "rmtfs";
 		qcom,client-id = <0x00000001>;
 		qcom,guard-memory;

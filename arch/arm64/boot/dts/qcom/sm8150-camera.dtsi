@@ -168,7 +168,11 @@
 			hw-thd-dat = <22>;
 			hw-thd-sta = <162>;
 			hw-tbuf = <227>;
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+			hw-scl-stretch-en = <1>;
+#else
 			hw-scl-stretch-en = <0>;
+#endif
 			hw-trdhld = <6>;
 			hw-tsp = <3>;
 			cci-clk-src = <37500000>;
@@ -183,7 +187,11 @@
 			hw-thd-dat = <22>;
 			hw-thd-sta = <35>;
 			hw-tbuf = <62>;
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+			hw-scl-stretch-en = <1>;
+#else
 			hw-scl-stretch-en = <0>;
+#endif
 			hw-trdhld = <6>;
 			hw-tsp = <3>;
 			cci-clk-src = <37500000>;
@@ -198,7 +206,11 @@
 			hw-thd-dat = <22>;
 			hw-thd-sta = <35>;
 			hw-tbuf = <62>;
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+			hw-scl-stretch-en = <0>;
+#else
 			hw-scl-stretch-en = <1>;
+#endif
 			hw-trdhld = <6>;
 			hw-tsp = <3>;
 			cci-clk-src = <37500000>;
@@ -263,7 +275,11 @@
 			hw-thd-dat = <22>;
 			hw-thd-sta = <162>;
 			hw-tbuf = <227>;
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+			hw-scl-stretch-en = <1>;
+#else
 			hw-scl-stretch-en = <0>;
+#endif
 			hw-trdhld = <6>;
 			hw-tsp = <3>;
 			cci-clk-src = <37500000>;
@@ -278,7 +294,11 @@
 			hw-thd-dat = <22>;
 			hw-thd-sta = <35>;
 			hw-tbuf = <62>;
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+			hw-scl-stretch-en = <1>;
+#else
 			hw-scl-stretch-en = <0>;
+#endif
 			hw-trdhld = <6>;
 			hw-tsp = <3>;
 			cci-clk-src = <37500000>;
@@ -293,7 +313,11 @@
 			hw-thd-dat = <22>;
 			hw-thd-sta = <35>;
 			hw-tbuf = <62>;
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+			hw-scl-stretch-en = <0>;
+#else
 			hw-scl-stretch-en = <1>;
+#endif
 			hw-trdhld = <6>;
 			hw-tsp = <3>;
 			cci-clk-src = <37500000>;

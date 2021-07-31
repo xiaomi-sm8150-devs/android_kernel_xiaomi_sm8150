@@ -233,7 +233,9 @@
 				qcom,ires-ua = <12500>;
 				qcom,hdrm-voltage-mv = <325>;
 				qcom,hdrm-vol-hi-lo-win-mv = <100>;
+#ifndef CONFIG_MACH_XIAOMI_SM8150
 				status = "disabled";
+#endif
 			};
 
 			pm8150l_torch0: qcom,torch_0 {
@@ -270,7 +272,9 @@
 				qcom,ires-ua = <12500>;
 				qcom,hdrm-voltage-mv = <325>;
 				qcom,hdrm-vol-hi-lo-win-mv = <100>;
+#ifndef CONFIG_MACH_XIAOMI_SM8150
 				status = "disabled";
+#endif
 			};
 
 			pm8150l_switch0: qcom,led_switch_0 {
@@ -293,6 +297,21 @@
 				qcom,led-mask = <3>;
 				qcom,default-led-trigger = "switch2_trigger";
 			};
+
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+			pm8150l_flashlight: qcom,flashlight {
+				label = "flash";
+				qcom,led-name = "flashlight";
+				qcom,max-current = <750>;
+				qcom,default-led-trigger = "flashlight_trigger";
+				qcom,id = <3>;
+				qcom,current-ma = <500>;
+				qcom,duration-ms = <1280>;
+				qcom,ires-ua = <12500>;
+				qcom,hdrm-voltage-mv = <325>;
+				qcom,hdrm-vol-hi-lo-win-mv = <100>;
+			}; // git
+#endif
 		};
 
 		pm8150l_wled: qcom,wled@d800 {
@@ -334,7 +353,11 @@
 			qcom,num-lpg-channels = <3>;
 			qcom,lut-patterns = <0 10 20 30 40 50 60 70 80 90 100
 						90 80 70 60 50 40 30 20 10 0>;
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+			pwm_lpg1: lpg1 {
+#else
 			lpg1 {
+#endif
 				qcom,lpg-chan-id = <1>;
 				qcom,ramp-step-ms = <100>;
 				qcom,ramp-pause-hi-count = <2>;
@@ -345,7 +368,11 @@
 				qcom,ramp-pattern-repeat;
 			};
 
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+			pwm_lpg2: lpg2 {
+#else
 			lpg2 {
+#endif
 				qcom,lpg-chan-id = <2>;
 				qcom,ramp-step-ms = <100>;
 				qcom,ramp-pause-hi-count = <2>;
@@ -356,7 +383,11 @@
 				qcom,ramp-pattern-repeat;
 			};
 
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+			pwm_lpg3: lpg3 {
+#else
 			lpg3 {
+#endif
 				qcom,lpg-chan-id = <3>;
 				qcom,ramp-step-ms = <100>;
 				qcom,ramp-pause-hi-count = <2>;
@@ -374,24 +405,41 @@
 			reg-names = "lpg-base";
 			#pwm-cells = <2>;
 			qcom,num-lpg-channels = <2>;
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+			status = "disabled";
+#endif
 		};
 
 		pm8150l_rgb_led: qcom,leds@d000 {
 			compatible = "qcom,tri-led";
 			reg = <0xd000 0x100>;
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+			red_led: red {
+#else
 			red {
+#endif
 				label = "red";
 				pwms = <&pm8150l_lpg 0 1000000>;
 				led-sources = <0>;
+#ifndef CONFIG_MACH_XIAOMI_SM8150
 				linux,default-trigger = "timer";
+#endif
 			};
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+			green_led: green {
+#else
 			green {
+#endif
 				label = "green";
 				pwms = <&pm8150l_lpg 1 1000000>;
 				led-sources = <1>;
 				linux,default-trigger = "timer";
 			};
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+			blue_led: blue {
+#else
 			blue {
+#endif
 				label = "blue";
 				pwms = <&pm8150l_lpg 2 1000000>;
 				led-sources = <2>;

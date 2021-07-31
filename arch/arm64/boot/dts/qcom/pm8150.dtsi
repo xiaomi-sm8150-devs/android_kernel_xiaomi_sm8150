@@ -42,17 +42,42 @@
 			compatible = "qcom,qpnp-power-on";
 			reg = <0x800 0x100>;
 			interrupts = <0x0 0x8 0x0 IRQ_TYPE_NONE>,
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+				     <0x0 0x8 0x1 IRQ_TYPE_NONE>,
+				     <0x0 0x8 0x4 IRQ_TYPE_NONE>,
+				     <0x0 0x8 0x5 IRQ_TYPE_NONE>;
+#else
 				     <0x0 0x8 0x1 IRQ_TYPE_NONE>;
+#endif
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+			interrupt-names = "kpdpwr", "resin",
+					"resin-bark", "kpdpwr-resin-bark";
+#else
 			interrupt-names = "kpdpwr", "resin";
+#endif
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+			qcom,pon-dbc-delay = <62500>;
+#else
 			qcom,pon-dbc-delay = <15625>;
+#endif
 			qcom,kpdpwr-sw-debounce;
 			qcom,system-reset;
 			qcom,store-hard-reset-reason;
 
 			qcom,pon_1 {
 				qcom,pon-type = <PON_POWER_ON_TYPE_KPDPWR>;
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+				qcom,support-reset = <1>;
+				qcom,pull-up = <1>;
+#else
 				qcom,pull-up;
+#endif
 				linux,code = <KEY_POWER>;
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+				qcom,s1-timer = <4480>;
+				qcom,s2-timer = <2000>;
+				qcom,s2-type = <0x7>;
+#endif
 			};
 
 			qcom,pon_2 {
@@ -60,6 +85,18 @@
 				qcom,pull-up;
 				linux,code = <KEY_VOLUMEDOWN>;
 			};
+
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+			qcom,pon_3 {
+				qcom,pon-type = <PON_POWER_ON_TYPE_KPDPWR_RESIN>;
+				qcom,support-reset = <1>;
+				qcom,pull-up = <1>;
+				qcom,s1-timer = <1352>;
+				qcom,s2-timer = <2000>;
+				qcom,s2-type = <0x1>;
+				qcom,use-bark;
+			};
+#endif
 		};
 
 		pm8150_clkdiv: clock-controller@5b00 {
@@ -78,7 +115,11 @@
 			#address-cells = <1>;
 			#size-cells = <1>;
 			qcom,qpnp-rtc-write = <0>;
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+			qcom,qpnp-rtc-alarm-pwrup = <1>;
+#else
 			qcom,qpnp-rtc-alarm-pwrup = <0>;
+#endif
 
 			qcom,pm8150_rtc_rw@6000 {
 				reg = <0x6000 0x100>;

@@ -96,6 +96,9 @@
 		compatible = "qcom,sm8150-asoc-snd-tavil";
 		qcom,model = "sm8150-tavil-snd-card";
 
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+		qcom,msm-mbhc-usbc-audio-supported = <1>;
+#endif
 		asoc-platform = <&pcm0>, <&pcm1>, <&pcm2>, <&voip>, <&voice>,
 				<&loopback>, <&compress>, <&hostless>,
 				<&afe>, <&lsm>, <&routing>, <&compr>,
@@ -155,15 +158,25 @@
 				"msm-dai-q6-tdm.36912", "msm-dai-q6-tdm.36913",
 				"msm-dai-q6-tdm.36914",
 				"msm-dai-q6-tdm.36928", "msm-dai-q6-tdm.36929";
+#ifndef CONFIG_MACH_XIAOMI_SM8150
 		fsa4480-i2c-handle = <&fsa4480>;
+#endif
 	};
 };
 
 &qupv3_se4_i2c {
 	status = "ok";
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+	fsa4480: fsa4480@42 {
+#else
 	fsa4480: fsa4480@43 {
+#endif
 		compatible = "qcom,fsa4480-i2c";
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+		reg = <0x42>;
+#else
 		reg = <0x43>;
+#endif
 		pinctrl-names = "default";
 		pinctrl-0 = <&fsa_usbc_ana_en>;
 	};
