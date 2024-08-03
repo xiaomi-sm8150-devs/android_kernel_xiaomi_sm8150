@@ -574,6 +574,9 @@ static int xiaomi_keyboard_probe(struct platform_device *pdev)
 		goto err_register_power_supply_notif_failed;
 	}
 
+	// Enable the keyboard by default
+	set_keyboard_status(1);
+
 	MI_KB_INFO("Success\n");
 	return ret;
 
