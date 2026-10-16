@@ -12,6 +12,7 @@
 #include <linux/of.h>
 #include <linux/slab.h>
 #include <linux/device.h>
+#include <linux/workqueue.h>
 #include "xiaomi_keyboard.h"
 #include <linux/msm_drm_notify.h>
 #include <linux/notifier.h>
@@ -19,7 +20,71 @@
 
 static struct xiaomi_keyboard_data *mdata;
 
+#define CONNECTION_QUERY_DELAY 100 /* msec */
+#define CONNECTION_QUERY_RETRY_INTERVAL 100 /* msec */
+#define CONNECTION_QUERY_MAX_RETRIES 10
+
 static void set_keyboard_status(bool on);
+static void xiaomi_keyboard_connected_notify(struct device *dev);
+
+static void xiaomi_keyboard_update_connection(void)
+{
+	// Notify the input driver
+	xiaomi_keyboard_connection_change(
+		!!(mdata->connected && mdata->user_enabled));
+}
+
+static void xiaomi_keyboard_schedule_query(void)
+{
+	mdata->connection_query_retries = 0;
+	mod_delayed_work(system_wq, &mdata->connection_query_work,
+			 msecs_to_jiffies(CONNECTION_QUERY_DELAY));
+}
+
+// Called by input driver
+void xiaomi_keyboard_request_query(void)
+{
+	if (!mdata)
+		return;
+
+	xiaomi_keyboard_schedule_query();
+}
+
+static void xiaomi_keyboard_query_work(struct work_struct *work)
+{
+	bool connected;
+	int ret;
+
+	ret = xiaomi_keyboard_connection_query(&connected);
+	if (ret == -ENODEV) {
+		// The input driver will request a query once it's ready
+		MI_KB_INFO("keyboard controller not ready\n");
+		return;
+	}
+	if (ret) {
+		if (mdata->connection_query_retries++ >=
+		    CONNECTION_QUERY_MAX_RETRIES) {
+			MI_KB_ERR("connection query failed: %d, giving up\n",
+				  ret);
+			return;
+		}
+		MI_KB_ERR("connection query failed: %d, retrying\n", ret);
+		schedule_delayed_work(&mdata->connection_query_work,
+				      msecs_to_jiffies(
+					      CONNECTION_QUERY_RETRY_INTERVAL));
+		return;
+	}
+
+	mutex_lock(&mdata->rw_mutex);
+	mdata->keyboard_conn_status = connected;
+	mutex_unlock(&mdata->rw_mutex);
+	mdata->connected = connected;
+
+	MI_KB_INFO("keyboard connected status: %d\n", connected);
+	xiaomi_keyboard_connected_notify(&mdata->pdev->dev);
+	sysfs_notify(&mdata->pdev->dev.kobj, NULL, "xiaomi_keyboard_connected");
+	xiaomi_keyboard_update_connection();
+}
 
 static void xiaomi_keyboard_reset(void)
 {
@@ -120,9 +185,7 @@ static ssize_t xiaomi_keyboard_connected_store(struct device *dev,
 
 	sysfs_notify(&mdata->pdev->dev.kobj, NULL, "xiaomi_keyboard_connected");
 
-	// Notify the input driver
-	xiaomi_keyboard_connection_change(
-		!!(mdata->connected && mdata->user_enabled));
+	xiaomi_keyboard_update_connection();
 
 	return count;
 }
@@ -157,9 +220,7 @@ static ssize_t xiaomi_keyboard_enabled_store(struct device *dev,
 
 	sysfs_notify(&mdata->pdev->dev.kobj, NULL, "xiaomi_keyboard_enabled");
 
-	// Notify the input driver
-	xiaomi_keyboard_connection_change(
-		!!(mdata->connected && mdata->user_enabled));
+	xiaomi_keyboard_update_connection();
 
 	return count;
 }
@@ -180,18 +241,9 @@ static const struct attribute_group xiaomi_attribute_group = {
 
 static irqreturn_t xiaomi_keyboard_irq_func(int irq, void *data)
 {
-	int value = 0;
 	MI_KB_INFO("keyboard event: wakeup system\n");
 	pm_wakeup_event(&mdata->pdev->dev, 500);
-	value = gpio_get_value_cansleep(mdata->pdata->in_irq_gpio);
-
-	mutex_lock(&mdata->rw_mutex);
-	mdata->keyboard_conn_status = !mdata->keyboard_conn_status;
-	mutex_unlock(&mdata->rw_mutex);
-
-	xiaomi_keyboard_connected_notify(&mdata->pdev->dev);
-	MI_KB_INFO("keyboard connected status: %d",
-		   mdata->keyboard_conn_status);
+	xiaomi_keyboard_schedule_query();
 	return IRQ_HANDLED;
 }
 
@@ -593,6 +645,8 @@ static int xiaomi_keyboard_probe(struct platform_device *pdev)
 
 	mdata->pdev = pdev;
 	mdata->pdata = pdata;
+	INIT_DELAYED_WORK(&mdata->connection_query_work,
+			  xiaomi_keyboard_query_work);
 	mutex_init(&mdata->rw_mutex);
 	mutex_init(&mdata->power_supply_lock);
 	mdata->is_usb_exist = 0;
@@ -656,6 +710,8 @@ static int xiaomi_keyboard_probe(struct platform_device *pdev)
 		goto err_register_power_supply_notif_failed;
 	}
 
+	xiaomi_keyboard_schedule_query();
+
 	MI_KB_INFO("Success\n");
 	return ret;
 
@@ -675,6 +731,7 @@ err_pinctrl_select:
 	}
 	xiaomi_keyboard_gpio_deconfig(pdata);
 out:
+	cancel_delayed_work_sync(&mdata->connection_query_work);
 	mutex_destroy(&mdata->rw_mutex);
 	mutex_destroy(&mdata->power_supply_lock);
 	if (mdata) {
@@ -689,6 +746,7 @@ static int xiaomi_keyboard_remove(struct platform_device *pdev)
 {
 	MI_KB_INFO("enter\n");
 	msm_drm_unregister_client(&mdata->drm_notif);
+	cancel_delayed_work_sync(&mdata->connection_query_work);
 	destroy_workqueue(mdata->event_wq);
 	xiaomi_keyboard_gpio_deconfig(mdata->pdata);
 	sysfs_remove_file(&mdata->pdev->dev.kobj,
