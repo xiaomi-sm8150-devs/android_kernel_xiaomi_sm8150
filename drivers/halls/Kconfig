@@ -2,8 +2,11 @@ menu "Halls"
 
 config HALLS
 	bool "Halls"
+	depends on OF && GPIOLIB
 	default n
 	---help---
-        it's to handle hall sensors for slide
+	  Driver for the pair of hall sensors that track the slider
+	  position. The sensor GPIOs are described in devicetree, see
+	  Documentation/devicetree/bindings/misc/xiaomi,halls.txt.
 
 endmenu

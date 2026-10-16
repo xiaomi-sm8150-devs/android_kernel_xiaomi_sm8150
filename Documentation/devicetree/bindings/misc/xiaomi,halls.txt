@@ -1,0 +1,24 @@
+Xiaomi slider hall sensors
+
+A pair of hall effect sensors reporting the position of a sliding
+display. The driver exposes the sensor state to userspace through the
+/dev/halls misc device and wakes the system on any edge.
+
+Required properties:
+- compatible: must be "xiaomi,halls".
+- hall1-gpios: GPIO connected to the first hall sensor output.
+- hall2-gpios: GPIO connected to the second hall sensor output.
+
+Optional properties:
+- pinctrl-names: "default".
+- pinctrl-0: pin configuration (mux and bias) for the sensor GPIOs.
+
+Example:
+
+	halls {
+		compatible = "xiaomi,halls";
+		hall1-gpios = <&tlmm 42 GPIO_ACTIVE_HIGH>;
+		hall2-gpios = <&tlmm 114 GPIO_ACTIVE_HIGH>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&halls_default>;
+	};
