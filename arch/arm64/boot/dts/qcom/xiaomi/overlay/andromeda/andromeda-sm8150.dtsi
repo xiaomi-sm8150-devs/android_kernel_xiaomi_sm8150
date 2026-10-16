@@ -57,6 +57,13 @@ And public attribution of xiaomi platforms(like E5 5G and so and)
 		pinctrl-0 = <&msm_gpio_119>;
 		pinctrl-1 = <&msm_gpio_119_output_high>;
 	};
+
+	halls {
+		compatible = "xiaomi,halls";
+		hall1-gpios = <&tlmm 42 GPIO_ACTIVE_HIGH>;
+		hall2-gpios = <&tlmm 114 GPIO_ACTIVE_HIGH>;
+	};
+
 	pcie0: qcom,pcie@1c00000 {
 		status = "disabled";
 	};
