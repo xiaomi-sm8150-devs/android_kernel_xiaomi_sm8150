@@ -420,8 +420,13 @@ int nfc_i2c_dev_probe(struct i2c_client *client, const struct i2c_device_id *id)
 	/* interrupt initializations */
 	pr_info("NxpDrv: %s: requesting IRQ %d\n", __func__, client->irq);
 	i2c_dev->irq_enabled = true;
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+	ret = request_irq(client->irq, i2c_irq_handler, IRQF_TRIGGER_RISING,
+			  client->name, nfc_dev);
+#else
 	ret = request_irq(client->irq, i2c_irq_handler, IRQF_TRIGGER_HIGH,
 			  client->name, nfc_dev);
+#endif
 	if (ret) {
 		pr_err("NxpDrv: %s: request_irq failed\n", __func__);
 		goto err_nfc_misc_unregister;
